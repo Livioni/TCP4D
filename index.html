@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TCP4D: A Unified Tool-Center-Point Tracking and Generation Model for Robot Manipulation</title>
+  <meta name="description" content="TCP4D unifies tool-center-point tracking and future action generation through a shared 4D scene representation, enabling robot manipulation and cross-embodiment data augmentation.">
+  <meta name="theme-color" content="#ffffff">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="TCP4D — Reconstruct, Track, and Action!">
+  <meta property="og:description" content="A unified model for TCP tracking, action generation, and cross-embodiment data augmentation from RGB videos.">
+  <meta property="og:url" content="https://livioni.github.io/TCP4D/">
+  <meta property="og:image" content="https://livioni.github.io/TCP4D/static/images/video_cover.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://livioni.github.io/TCP4D/">
+  <link rel="icon" href="static/images/favicon.ico?v=20261112" sizes="16x16 32x32 48x48">
+  <link rel="icon" href="static/images/favicon.svg?v=20261112" type="image/svg+xml" sizes="any">
+  <link rel="apple-touch-icon" href="static/images/apple-touch-icon.png?v=20261112" sizes="180x180">
+  <link rel="preload" href="static/fonts/lato-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="static/fonts/lato-latin-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="static/css/style.css?v=20261112-8">
+  <script type="module" src="static/js/app.js"></script>
+</head>
+<body id="top">
+  <a class="skip" href="#main-content">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav-shell" aria-label="Page sections">
+      <a class="wordmark" href="#top" aria-label="TCP4D home">TCP<span>4D</span></a>
+      <div class="nav-links">
+        <a href="#overview">Overview</a><a href="#tracking">Tracking</a><a href="#augmentation">Augmentation</a><a href="#real-world">Robots</a><a href="#results">Results</a><a href="#citation">BibTeX</a>
+      </div>
+    </nav>
+  </header>
+  <main id="main-content">
+    <section class="hero wrap" aria-labelledby="paper-title">
+      <img class="hero-logo" src="static/images/TCP4D-logo.webp" width="700" height="251" alt="TCP4D">
+      <h1 id="paper-title"><span class="sr-only">TCP4D: </span>A Unified Tool-Center-Point Tracking<br class="desktop-break"> and Generation Model for Robot Manipulation</h1>
+      <div class="authors" aria-label="Authors">
+        <span><a href="https://livioni.github.io/" target="_blank" rel="noopener noreferrer">Haosong Peng</a><sup>1*</sup></span>
+        <span>Xiangyang Liu<sup>2*</sup></span>
+        <span><a href="https://scholar.google.com/citations?hl=zh-CN&amp;user=8nrJ1vsAAAAJ" target="_blank" rel="noopener noreferrer">Zhengshen Zhang</a><sup>3</sup></span>
+        <span><a href="https://fyf-simon.github.io/" target="_blank" rel="noopener noreferrer">Yunfeng Fan</a><sup>4</sup></span>
+        <span><a href="https://tymiracle.top/" target="_blank" rel="noopener noreferrer">Tianyu Qi</a><sup>5</sup></span>
+        <span>Xin Xia<sup>6</sup></span>
+        <span><a href="https://ray-zhan.github.io/" target="_blank" rel="noopener noreferrer">Yufeng Zhan</a><sup>2†</sup></span>
+        <span><a href="https://huasion23.github.io/" target="_blank" rel="noopener noreferrer">Wenchao Xu</a><sup>1†</sup></span>
+      </div>
+      <div class="affiliations">
+        <span><sup>1</sup>The Hong Kong University of Science and Technology</span><span><sup>2</sup>Beijing Institute of Technology</span><span><sup>3</sup>National University of Singapore</span><span><sup>4</sup>The Hong Kong Polytechnic University</span><span><sup>5</sup>Sun Yat-sen University</span><span><sup>6</sup>Zhejiang University</span>
+      </div>
+      <p class="author-notes">* Equal contribution &nbsp; † Corresponding authors</p>
+      <p class="venue">Preprint 2026</p>
+      <div class="resource-links">
+        <a href="static/papers/TCP4D.pdf" target="_blank" rel="noopener">Paper</a>
+        <a href="https://github.com/Livioni/TCP4D" target="_blank" rel="noopener">Code</a>
+        <a href="https://huggingface.co/collections/HarrisonPENG/tcp-4d-models" target="_blank" rel="noopener">Models <span aria-hidden="true">↗</span></a>
+        <a href="https://huggingface.co/collections/HarrisonPENG/tcp4d-datasets-and-benchmark" target="_blank" rel="noopener">Datasets <span aria-hidden="true">↗</span></a>
+        <a href="https://huggingface.co/datasets/HarrisonPENG/TCP4D-Benchmark" target="_blank" rel="noopener">Benchmark <span aria-hidden="true">↗</span></a>
+        <a href="https://huggingface.co/spaces/HarrisonPENG/TCP4D-DROID" target="_blank" rel="noopener">Demo</a>
+      </div>
+    </section>
+
+    <section class="wrap hero-demo compact-player" id="demo" aria-label="TCP4D project video">
+      <div class="hero-video-frame video-frame">
+        <video id="hero-video" width="1920" height="1080" controls playsinline preload="none" poster="static/images/video_cover.jpg" aria-label="TCP4D project video: tracking, generation, and cross-embodiment augmentation">
+          <source src="https://huggingface.co/datasets/HarrisonPENG/TCP4D_assets/resolve/main/TCP4D_video.mp4" type="video/mp4">
+          Your browser does not support embedded video.
+        </video>
+      </div>
+      <p class="media-caption"><a href="https://huggingface.co/datasets/HarrisonPENG/TCP4D_assets/resolve/main/TCP4D_video.mp4" target="_blank" rel="noopener">Full video ↗</a></p>
+    </section>
+
+    <section class="section wrap" id="overview">
+      <p class="eyebrow">OVERVIEW</p>
+      <h2>From observing motion to generating action.</h2>
+      <p class="abstract-text"><strong>TCP4D</strong> shares a 4D scene representation between its <strong>Tracker</strong> and <strong>Generator</strong>. The tracker recovers metric TCP poses, gripper states, scene geometry and camera parameters from RGB videos and initial 2D TCP queries. The generator samples features along the recovered tracks and combines them with current robot observations and language to generate future TCP trajectories. We also introduces a cross-embodiment augmentation pipeline that retargets recovered motion and synthesizes target-robot observations.</p>
+      <figure class="paper-figure">
+        <a href="static/images/teaser.webp" target="_blank" rel="noopener" aria-label="Open the TCP4D teaser figure"><img src="static/images/teaser.webp" width="2400" height="918" loading="lazy" alt="TCP4D recovers historical TCP trajectories, generates future trajectories and gripper states, and transfers motion to Panda, UR5-WSG, and Jaco robots."></a>
+      </figure>
+      <div class="highlights">
+        <div><strong>7.60 <small>mm</small></strong><span>TCP trajectory error on DROID</span></div>
+        <div><strong>69.19<small>%</small></strong><span>Success on 48 RoboTwin tasks · C2C</span></div>
+        <div><strong>10 <small>demos</small></strong><span>Adaptation to a new UR5 embodiment</span></div>
+      </div>
+      <div class="section-heading"><h2>Method</h2></div>
+      <figure class="paper-figure">
+        <a href="static/images/overview.webp" target="_blank" rel="noopener" aria-label="Open the TCP4D method figure"><img src="static/images/overview.webp" width="2400" height="1291" loading="lazy" alt="TCP4D architecture: a shared visual backbone and 4D features support metric geometry reconstruction, sparse TCP queries and pose tracking, and a language-conditioned trajectory generator."></a>
+      </figure>
+
+    </section>
+
+    <section class="section section-tint" id="tracking"><div class="wrap">
+      <p class="eyebrow">01 / TCP TRACKING</p><h2>A point in the image. A trajectory in 3D.</h2>
+      <p class="lead">Recover TCP motion, gripper states, and scene geometry directly from RGB videos.</p>
+      <div id="tracking-explorer" class="explorer compact-player" aria-label="TCP tracking examples"></div>
+      <noscript><p><a href="https://huggingface.co/datasets/HarrisonPENG/TCP4D_assets/tree/main/S1_TCP4D_Tracking">Browse all tracking videos on Hugging Face.</a></p></noscript>
+    </div></section>
+
+    <section class="section wrap" id="adaptation">
+      <p class="eyebrow">02 / FEW-SHOT ADAPTATION</p><h2>A new embodiment, with ten demonstrations.</h2>
+      <p class="lead">Transfer the DROID-pretrained Tracker to Berkeley AUTOLAB UR5.</p>
+      <p><strong>8.85 mm ATE</strong> · <strong>98.48% gripper accuracy</strong> after ten-shot adaptation.</p>
+      <div id="adaptation-explorer" class="explorer compact-player" aria-label="Few-shot adaptation examples"></div>
+      <noscript><p><a href="https://huggingface.co/datasets/HarrisonPENG/TCP4D_assets/tree/main/S4_few_shot_adaptation">Browse adaptation videos on Hugging Face.</a></p></noscript>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Few-shot adaptation results"><table class="metrics-table">
+        <caption>Berkeley AUTOLAB UR5 · averages over 100 evaluation episodes</caption>
+        <thead><tr><th scope="col">Method</th><th scope="col">APD ↑ (%)</th><th scope="col">MPE ↓ (mm)</th><th scope="col">ATE ↓ (mm)</th><th scope="col">RRE ↓ (°)</th><th scope="col">RTE ↓ (mm)</th><th scope="col">Gripper ↑ (%)</th></tr></thead>
+        <tbody><tr><th scope="row">MoSE3†</th><td>14.39</td><td>88.07</td><td>44.56</td><td>1.17</td><td>6.45</td><td>—</td></tr><tr><th scope="row">TCP4D · 3 demos</th><td>48.27</td><td>18.48</td><td>12.22</td><td>1.03</td><td>4.28</td><td>97.05</td></tr><tr class="ours"><th scope="row">TCP4D · 10 demos</th><td>64.28</td><td>11.08</td><td>8.85</td><td>0.96</td><td>3.87</td><td>98.48</td></tr></tbody>
+      </table></div><p class="table-note">SE(3) errors use Sim(3) alignment. † MoSE3 uses its native dense-point SE(3) outputs followed by post-processing.</p>
+    </section>
+
+    <section class="section section-tint" id="augmentation"><div class="wrap">
+      <p class="eyebrow">03 / CROSS-EMBODIMENT AUGMENTATION</p><h2>The same motion. A different robot.</h2>
+      <p class="lead">Turn existing RGB demonstrations into training data for alternative embodiments.</p>
+      <figure class="pipeline-figure paper-figure"><a href="static/images/pipeline.png?v=b97f9140e8e3" target="_blank" rel="noopener" aria-label="Open the augmentation pipeline figure"><img src="static/images/pipeline.png?v=b97f9140e8e3" width="4670" height="2151" loading="lazy" alt="Augmentation pipeline: recover TCP motion, remove and inpaint the source robot, retarget through inverse kinematics, and synthesize target-robot observations."></a></figure>
+      <div id="augmentation-explorer" class="explorer compact-player" aria-label="Cross-embodiment augmentation examples"></div>
+      <noscript><p><a href="https://huggingface.co/datasets/HarrisonPENG/TCP4D_assets/tree/main/S2_augumented_data">Browse all augmentation videos on Hugging Face.</a></p></noscript>
+      <div class="result-callout"><p class="eyebrow">AUGMENTATION FOR POLICY LEARNING</p><p>On ARX-X5, combining source and augmented demonstrations raises mean success from <strong>30.5% to 72.0%</strong> — a gain of <strong>41.5 percentage points</strong> over augmented-only training.</p><span>Four tasks · 50 evaluation episodes per task and policy–embodiment pair · Diffusion Policy</span></div>
+    </div></section>
+
+    <section class="section wrap" id="real-world">
+      <p class="eyebrow">04 / REAL-WORLD MANIPULATION</p><h2>Predictions become physical actions.</h2>
+      <p class="lead">Placing pens and stacking bowls on the CoBoT Magic platform.</p>
+      <p><strong>83.33%</strong> success placing pens · <strong>73.33%</strong> stacking bowls. 60 training demonstrations and 30 evaluation trials per method.</p>
+      <div id="robot-explorer" class="explorer compact-player" aria-label="Real robot task videos"></div>
+      <noscript><p><a href="https://huggingface.co/datasets/HarrisonPENG/TCP4D_assets/tree/main">Browse real-world task videos on Hugging Face.</a></p></noscript>
+    </section>
+
+    <section class="section section-tint" id="results"><div class="wrap">
+      <p class="eyebrow">05 / BENCHMARKS</p><h2>Tracking accuracy. Manipulation performance.</h2>
+      <p>Selected metrics from the paper. APD: average percentage of points; MPE: mean position error; ATE: absolute trajectory error; RRE/RTE: relative rotation/translation error; SR: tracking success rate.</p>
+      <h3 class="table-heading">TCP tracking on DROID and unseen RoboLab</h3>
+      <div id="tracking-tables"><div class="table-wrap" tabindex="0" role="region" aria-label="DROID · evaluation set tracking results"><table class="metrics-table"><caption>DROID · evaluation set</caption><thead><tr><th scope="col">Method</th><th scope="col">APD ↑ (%)</th><th scope="col">MPE ↓ (mm)</th><th scope="col">ATE ↓ (mm)</th><th scope="col">RRE ↓ (°)</th><th scope="col">RTE ↓ (mm)</th><th scope="col">Gripper ↑ (%)</th><th scope="col">SR ↑ (%)</th></tr></thead><tbody><tr><th scope="row">4RC*</th><td>8.74</td><td>107.56</td><td>84.63</td><td>8.37</td><td>13.29</td><td>—</td><td>79.56</td></tr><tr><th scope="row">Track4World*</th><td>3.68</td><td>186.95</td><td>92.55</td><td>10.35</td><td>12.42</td><td>—</td><td>66.05</td></tr><tr><th scope="row">Any4D*</th><td>2.32</td><td>242.01</td><td>96.71</td><td>10.76</td><td>13.10</td><td>—</td><td>56.09</td></tr><tr><th scope="row">VDPM*</th><td>4.67</td><td>191.06</td><td>85.40</td><td>8.05</td><td>11.58</td><td>—</td><td>76.82</td></tr><tr><th scope="row">CoTracker3*</th><td>14.04</td><td>91.76</td><td>70.35</td><td>16.14</td><td>22.60</td><td>—</td><td>63.23</td></tr><tr><th scope="row">MoSE3†</th><td>12.38</td><td>103.43</td><td>67.65</td><td>1.27</td><td>5.96</td><td>—</td><td>89.64</td></tr><tr class="ours"><th scope="row">TCP4D (ours)</th><td>74.78</td><td>11.85</td><td>7.60</td><td>1.03</td><td>3.40</td><td>95.84</td><td>100.00</td></tr></tbody></table></div><div class="table-wrap" tabindex="0" role="region" aria-label="RoboLab · unseen tracking results"><table class="metrics-table"><caption>RoboLab · unseen</caption><thead><tr><th scope="col">Method</th><th scope="col">APD ↑ (%)</th><th scope="col">MPE ↓ (mm)</th><th scope="col">ATE ↓ (mm)</th><th scope="col">RRE ↓ (°)</th><th scope="col">RTE ↓ (mm)</th><th scope="col">Gripper ↑ (%)</th><th scope="col">SR ↑ (%)</th></tr></thead><tbody><tr><th scope="row">4RC*</th><td>4.92</td><td>164.53</td><td>91.37</td><td>7.16</td><td>8.59</td><td>—</td><td>90.62</td></tr><tr><th scope="row">Track4World*</th><td>2.44</td><td>208.05</td><td>95.43</td><td>9.50</td><td>8.88</td><td>—</td><td>82.85</td></tr><tr><th scope="row">Any4D*</th><td>1.15</td><td>238.02</td><td>106.49</td><td>8.41</td><td>8.42</td><td>—</td><td>74.63</td></tr><tr><th scope="row">VDPM*</th><td>9.90</td><td>111.90</td><td>70.90</td><td>5.78</td><td>8.59</td><td>—</td><td>96.33</td></tr><tr><th scope="row">CoTracker3*</th><td>8.78</td><td>131.39</td><td>85.12</td><td>15.80</td><td>17.63</td><td>—</td><td>75.38</td></tr><tr><th scope="row">MoSE3†</th><td>8.58</td><td>130.18</td><td>85.45</td><td>0.99</td><td>4.65</td><td>—</td><td>94.18</td></tr><tr class="ours"><th scope="row">TCP4D (ours)</th><td>43.71</td><td>28.42</td><td>16.07</td><td>6.80</td><td>4.83</td><td>81.92</td><td>100.00</td></tr></tbody></table></div></div>
+      <p class="table-note">SE(3) errors use Sim(3) alignment. * TCP poses recovered by rigid fitting of predicted point tracks. † MoSE3 uses native dense-point SE(3) outputs followed by post-processing. SR measures successfully processed tracking windows, rather than manipulation task success. Full depth results and protocols are in the paper.</p>
+      <h3 class="table-heading">Robot manipulation on RoboTwin 2.0</h3>
+      <p>48 tasks · 100 trials per task. C2C: clean-to-clean. C2R: clean-to-random.</p>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="RoboTwin manipulation results"><table>
+        <caption>Average task success rate (%)</caption><thead><tr><th scope="col">Method</th><th scope="col">Primary view</th><th scope="col">C2C ↑</th><th scope="col">C2R ↑</th></tr></thead>
+        <tbody><tr><th scope="row">EventVLA</th><td>head</td><td>65.71</td><td>14.50</td></tr><tr><th scope="row">AHA-WAM</th><td>head</td><td>64.38</td><td>2.77</td></tr><tr><th scope="row">Xiaomi Robotics-0</th><td>head</td><td>62.79</td><td><strong>17.85</strong></td></tr><tr><th scope="row">GalaxeaVLA</th><td>head</td><td>62.73</td><td>12.31</td></tr><tr><th scope="row">Discrete Forcing</th><td>head</td><td>59.25</td><td>11.04</td></tr><tr><th scope="row">StarVLA</th><td>head</td><td>46.73</td><td>3.21</td></tr><tr><th scope="row">π₀</th><td>head</td><td>45.21</td><td>16.15</td></tr><tr><th scope="row">DP3</th><td>head</td><td>54.27</td><td>4.04</td></tr><tr><th scope="row">RDT</th><td>head</td><td>33.92</td><td>13.25</td></tr><tr><th scope="row">ACT</th><td>head</td><td>29.25</td><td>1.79</td></tr><tr><th scope="row">DP</th><td>head</td><td>27.31</td><td>0.67</td></tr><tr class="ours"><th scope="row">TCP4D (ours)</th><td>third-person</td><td><strong>69.19</strong></td><td>10.94</td></tr></tbody>
+      </table></div>
+      <p class="table-note">TCP4D’s Generator is trained solely on clean RoboTwin demonstrations. Performance drops under environmental randomization; robustness to this distribution shift remains a limitation.</p>
+    </div></section>
+
+    <section class="section wrap citation" id="citation">
+      <p class="eyebrow">CITATION</p><div class="citation-heading"><h2>BibTeX</h2><button id="copy-citation" class="text-button" type="button">Copy citation <span aria-hidden="true">⧉</span></button></div>
+      <pre><code id="bibtex">@misc{peng2026tcp4d,
+  title  = {TCP4D: A Unified Tool-Center-Point Tracking and
+            Generation Model for Robot Manipulation},
+  author = {Peng, Haosong and Liu, Xiangyang and Zhang, Zhengshen
+            and Fan, Yunfeng and Qi, Tianyu and Xia, Xin
+            and Zhan, Yufeng and Xu, Wenchao},
+  year   = {2026},
+  note   = {Preprint},
+  url    = {https://livioni.github.io/TCP4D/}
+}</code></pre><p id="copy-status" class="copy-status" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+  <footer class="wrap"><p class="footer-brand">TCP<span>4D</span></p><p>A Unified Tool-Center-Point Tracking and Generation Model for Robot Manipulation</p><p>Page design inspired by <a href="https://nirvanalan.github.io/projects/track4d/" target="_blank" rel="noopener">Track4D</a>. Original videos hosted on <a href="https://huggingface.co/datasets/HarrisonPENG/TCP4D_assets" target="_blank" rel="noopener">Hugging Face</a>.</p></footer>
+  <a class="back-top" href="#top" aria-label="Back to top">↑</a>
+</body>
+</html>

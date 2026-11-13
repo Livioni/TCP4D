@@ -202,4 +202,4 @@ The TCP4D codebase and released model weights are licensed under [CC BY 4.0](LIC
 Third-party code, model checkpoints and datasets retain their original licenses.
 See [NOTICE](NOTICE) for third-party attribution and licensing details.
 
-The TCP4D model is based on [4RC](https://github.com/Luo-Yihang/4RC). We are especially grateful to [Yihang Luo](https://yihangluo.com/) and Zhiwei Wu for their insightful discussions, and to Xingxin He for their help.
+The TCP4D model is based on [4RC](https://github.com/Luo-Yihang/4RC). We are especially grateful to [Yihang Luo](https://yihangluo.com/) and [Zhiwei Wu](https://scholar.google.com/citations?hl=zh-CN&user=_0RZjpIAAAAJ) for their insightful discussions, and to [Xingxin He](https://www.xingxinhe.com/) for their help.

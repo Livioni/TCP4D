@@ -1,0 +1,35 @@
+{
+  "format": "robotwin_tcp_v1",
+  "shape": [
+    126,
+    7
+  ],
+  "columns": [
+    "x",
+    "y",
+    "z",
+    "roll",
+    "pitch",
+    "yaw",
+    "gripper_open"
+  ],
+  "position_unit": "meter",
+  "rotation_unit": "radian",
+  "rpy_convention": "fixed-axis XYZ (R = Rz(yaw) @ Ry(pitch) @ Rx(roll))",
+  "coordinate_frame": "OpenCV camera (+x right, +y down, +z forward)",
+  "extrinsics": "world_to_camera, applied directly to world TCP pose",
+  "camera_id": "22008760",
+  "tcp_definition": "midpoint of inner fingertip contact faces at finger_joint=0.8 rad",
+  "tcp_offset_in_robotiq_base_m": [
+    -3.086367901917167e-15,
+    0.0,
+    0.1442549775197502
+  ],
+  "gripper": {
+    "source": "1 - observations/gripper_position",
+    "open": 1,
+    "closed": 0,
+    "encoding": "continuous"
+  },
+  "urdf": "upstream:panda_robotiq_2f85.urdf"
+}

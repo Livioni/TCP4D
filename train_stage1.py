@@ -1,0 +1,537 @@
+#!/usr/bin/env python3
+"""DROID stage one: monocular geometry, absolute cameras and single-arm TCP recovery.
+
+Example:
+    accelerate launch train_stage1.py --config configs/stage1_droid.py
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from itertools import count
+import json
+import logging
+import math
+from pathlib import Path
+from typing import Any
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import torch
+from accelerate import Accelerator
+from accelerate.utils import DistributedDataParallelKwargs, ProjectConfiguration, set_seed
+from torch.utils.data import DataLoader
+from tqdm.auto import tqdm
+
+from tcp4d.training import cosine_warmup_scheduler, distributed_scheduler_steps, training_total_steps, align_resumed_scheduler
+from tcp4d.training import record_metrics
+from tcp4d.checkpoint import save_checkpoint as save_training_checkpoint
+from tcp4d.models.tcp4d.tcp4d import TCP4D
+from tcp4d.datasets import (
+    WeightedMultiSourceBatchSampler,
+    build_training_dataset,
+    collate_training_samples,
+    views_from_batch,
+)
+from tcp4d.loss import TCPTrackingLoss
+from tcp4d.loss.droid_geometry import DroidGeometryLoss as GeometryLoss, prepare_geometry_batch
+from tcp4d.droid_checkpoint import load_run_config, snapshot_splits, load_stage1_model as load_model
+
+
+LOGGER = logging.getLogger("tcp4d.stage1")
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        '--config',
+        help='DROID Stage1 configuration file (.py/.json); defaults to the resume configuration or stage1_droid.py.',
+    )
+    parser.add_argument(
+        '--num-workers',
+        type=int,
+        help='Number of DataLoader worker processes; 0 loads data in the main process; defaults to the configuration.',
+    )
+    parser.add_argument(
+        '--batches-per-epoch',
+        type=int,
+        help='Number of logical batches sampled per epoch; defaults to the configuration; counts batches rather than images.',
+    )
+    parser.add_argument(
+        '--mixed-precision',
+        choices=('no', 'fp16', 'bf16'),
+        help='Training precision mode: no, fp16, or bf16; overrides the configuration.',
+    )
+    parser.add_argument(
+        '--train-set',
+        help='Training episode list (.txt), with one path relative to the data root per line; overrides the configuration.',
+    )
+    parser.add_argument(
+        '--val-set',
+        help='Validation episode list (.txt), checked jointly with the training list to validate the split; overrides the configuration.',
+    )
+    parser.add_argument(
+        '--index-path',
+        help='Path to the locally generated DROID SQLite index; must match the data root and indexing options.',
+    )
+    parser.add_argument(
+        '--data-root',
+        help='Root directory of the first DROID data source; overrides options.root in the configuration.',
+    )
+    parser.add_argument(
+        '--pretrained-model',
+        help='Checkpoint file/directory or Hugging Face model ID used to initialize a new run; a full resume skips the base-weight download.',
+    )
+    parser.add_argument(
+        '--resume',
+        help='Full Stage1 training checkpoint directory; restores the model, optimizer, scheduler, random state, and training position.',
+    )
+    parser.add_argument(
+        '--output-dir',
+        help='Output directory for configuration snapshots, scalar logs, and checkpoints; overrides the configuration.',
+    )
+    parser.add_argument(
+        '--max-episodes',
+        type=int,
+        help='Maximum number of episodes selected for a quick check; defaults to the configuration.',
+    )
+    parser.add_argument(
+        '--num-train-epochs',
+        type=int,
+        help='Cumulative training epoch limit, including completed epochs; overrides the configuration.',
+    )
+    parser.add_argument(
+        '--max-train-steps',
+        type=int,
+        help='Cumulative optimizer update limit, including completed steps; resuming uses the remaining steps up to this limit.',
+    )
+    return parser.parse_args()
+
+
+def load_config(args):
+    return load_run_config(args, stage=1)
+
+
+def build_optimizer(model: TCP4D, config: dict[str, Any]) -> torch.optim.AdamW:
+    groups = []
+    for name, module, learning_rate in (
+        ("backbone", model.backbone, config["lr_backbone"]),
+        ("geometry_head", model.head, config["lr_head"]),
+        ("camera_decoder", model.cam_dec, config["lr_camera"]),
+        ("motion_decoder", model.motion_decoder, config["lr_motion_decoder"]),
+        (
+            "tcp_visual_query_encoder",
+            model.tcp_visual_query_encoder,
+            config["lr_tcp"],
+        ),
+        ("tcp_track_head", model.tcp_track_head, config["lr_tcp"]),
+    ):
+        parameters = [parameter for parameter in module.parameters() if parameter.requires_grad]
+        if parameters:
+            groups.append({"params": parameters, "lr": learning_rate, "name": name})
+    if not groups:
+        raise RuntimeError("No trainable model parameters")
+    return torch.optim.AdamW(
+        groups,
+        betas=(config["adam_beta1"], config["adam_beta2"]),
+        eps=config["adam_epsilon"],
+        weight_decay=config["weight_decay"],
+    )
+
+
+def prepare_tcp_query_points(
+    batch: dict[str, Any],
+    *,
+    global_step: int,
+    total_steps: int,
+    config: dict[str, Any],
+) -> torch.Tensor:
+    """Apply the resumable GT-to-jitter curriculum in padded pixel space."""
+    points = batch["tcp_query_points"].float()
+    valid = batch["tcp_query_valid"].bool()
+    progress = min(max(global_step / max(total_steps - 1, 1), 0.0), 1.0)
+    warmup = float(config.get("tcp_query_curriculum_warmup_ratio", 0.10))
+    transition = float(config.get("tcp_query_curriculum_transition_ratio", 0.20))
+    initial_exact = float(config.get("tcp_query_initial_exact_ratio", 0.80))
+    final_exact = float(config.get("tcp_query_exact_ratio", 0.25))
+    if progress < warmup:
+        exact_ratio = initial_exact
+    elif transition > 0 and progress < warmup + transition:
+        blend = (progress - warmup) / transition
+        exact_ratio = initial_exact + blend * (final_exact - initial_exact)
+    else:
+        exact_ratio = final_exact
+
+    jittered = (torch.rand(valid.shape, device=points.device) >= exact_ratio) & valid
+    max_jitter_patches = float(config.get("tcp_query_max_jitter_patches", 1.0))
+    ramp_end = max(warmup + transition, 1e-6)
+    radius_scale = 0.25 + 0.75 * min(progress / ramp_end, 1.0)
+    max_radius = TCP4D.PATCH_SIZE * max_jitter_patches * radius_scale
+
+    padding = batch["padding"].to(device=points.device, dtype=points.dtype)
+    source_size = batch["source_size"].to(device=points.device, dtype=points.dtype)
+    lower = torch.stack((padding[:, 0], padding[:, 2]), dim=-1)[:, None]
+    upper = lower + torch.stack((source_size[:, 1], source_size[:, 0]), dim=-1)[:, None] - 1
+    output = points.clone()
+    pending = jittered.clone()
+    for _ in range(8):
+        angle = torch.rand(valid.shape, device=points.device) * (2.0 * math.pi)
+        radius = torch.rand(valid.shape, device=points.device).sqrt() * max_radius
+        offset = torch.stack((radius * angle.cos(), radius * angle.sin()), dim=-1)
+        candidate = points + offset
+        inside = ((candidate >= lower) & (candidate <= upper)).all(dim=-1)
+        accepted = pending & inside
+        output[accepted] = candidate[accepted]
+        pending &= ~inside
+    return output
+
+
+def save_checkpoint(accelerator, output_dir, name, *, epoch, batch_in_epoch, global_step,
+                    metadata_writer=None):
+    def write_metadata(directory):
+        config_path = directory / "config.json"
+        if config_path.is_file():
+            snapshot_splits(json.loads(config_path.read_text()), directory)
+        if metadata_writer is not None:
+            metadata_writer(directory)
+
+    save_training_checkpoint(
+        accelerator, output_dir, name, epoch=epoch, batch_in_epoch=batch_in_epoch,
+        global_step=global_step, metadata_writer=write_metadata,
+    )
+
+
+def main() -> None:
+    args = parse_args()
+    config = load_config(args)
+    # Validate limits and the resume target before creating logs or loading data.
+    training_total_steps(1, config.get("num_train_epochs"), config.get("max_train_steps"))
+    if config.get("resume"):
+        resume_dir = Path(config["resume"]).expanduser()
+        for filename in ("trainer_state.json", "model.safetensors", "optimizer.bin", "scheduler.bin"):
+            if not (resume_dir / filename).is_file():
+                raise FileNotFoundError(f"Resume checkpoint is missing {filename}: {resume_dir}")
+    output_dir = Path(config["output_dir"]).expanduser()
+    project_config = ProjectConfiguration(
+        project_dir=str(output_dir), logging_dir=str(output_dir / config["logging_dir"])
+    )
+    # DualDPT keeps prediction layers for every ray-pyramid level for checkpoint
+    # compatibility, while the geometry objective supervises only the final level.
+    # Those intermediate prediction layers therefore intentionally have no grad.
+    ddp = DistributedDataParallelKwargs(
+        find_unused_parameters=config.get("find_unused_parameters", True)
+    )
+    accelerator = Accelerator(
+        mixed_precision=config["mixed_precision"],
+        gradient_accumulation_steps=config["gradient_accumulation_steps"],
+        log_with=config.get("report_to") or None,
+        project_config=project_config,
+        kwargs_handlers=[ddp],
+    )
+    logging.basicConfig(
+        level=logging.INFO if accelerator.is_local_main_process else logging.WARNING,
+        format="%(asctime)s | %(levelname)s | %(message)s",
+    )
+    set_seed(config["seed"], device_specific=True)
+    if accelerator.is_main_process:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        with (output_dir / "config.json").open("w", encoding="utf-8") as handle:
+            json.dump(config, handle, indent=2)
+        snapshot_splits(config, output_dir)
+    tracker_config = {
+        key: json.dumps(value) if isinstance(value, (tuple, list, dict)) else value
+        for key, value in config.items()
+    }
+    accelerator.init_trackers("TCP4D-DROID-Stage1", config=tracker_config)
+
+    with accelerator.main_process_first():
+        dataset = build_training_dataset(config)
+    batch_sampler = WeightedMultiSourceBatchSampler(
+        dataset,
+        images_per_batch=config["train_batch_images"],
+        scene_counts=config["scene_counts"],
+        batches_per_epoch=config.get("batches_per_epoch"),
+        recent_buffer_size=config["recent_buffer_size"],
+        seed=config["seed"],
+    )
+    dataloader = DataLoader(
+        dataset,
+        batch_sampler=batch_sampler,
+        num_workers=config["num_workers"],
+        pin_memory=True,
+        persistent_workers=config["num_workers"] > 0,
+        collate_fn=collate_training_samples,
+        generator=torch.Generator().manual_seed(config["seed"]),
+        **({"prefetch_factor": config.get("prefetch_factor", 2), "multiprocessing_context": "spawn"} if config["num_workers"] else {}),
+    )
+
+    model = load_model(
+        # load_state below restores the complete model; a base-model download is unnecessary.
+        None if config.get("resume") else config.get("pretrained_model"),
+        tcp_query_window_size=config.get("tcp_query_window_size", 3),
+    )
+    model.set_tcp_position_stats(
+        dataset.tcp_position_mean, dataset.tcp_position_std
+    )
+    trainable = model.configure_trainable_modules(
+        backbone=config["train_backbone"],
+        geometry_head=config["train_geometry_head"],
+        camera_decoder=config["train_camera_decoder"],
+        motion_decoder=config["train_motion_decoder"],
+        tcp_tracker=config.get("train_tcp_tracker", True),
+    )
+    optimizer = build_optimizer(model, config)
+    geometry_criterion = GeometryLoss(
+        **{key: config[key] for key in ("camera_loss_weight", "camera_translation_weight", "camera_rotation_weight", "camera_fov_weight")},
+        depth_weight=config["depth_loss_weight"],
+        ray_weight=config["ray_loss_weight"],
+        gamma=config["loss_gamma"],
+        alpha=config["loss_alpha"],
+        depth_valid_range=config["depth_valid_range"],
+        gradient_scales=config["gradient_scales"],
+    )
+    tcp_criterion = TCPTrackingLoss(
+        gripper_encoding="continuous",
+        point_scale=config.get("tcp_point_scale", 0.1),
+        virtual_point_radius=config.get("tcp_virtual_point_radius", 0.03),
+        rotation_weight=config.get("tcp_rotation_weight", 0.5),
+        temporal_weight=config.get("tcp_temporal_weight", 0.2),
+        gripper_weight=config.get("tcp_gripper_weight", 0.2),
+        velocity_scale=config.get("tcp_velocity_scale", 1.0),
+        gamma=config["loss_gamma"],
+        alpha=config["loss_alpha"],
+    )
+    model, optimizer, dataloader = accelerator.prepare(model, optimizer, dataloader)
+    geometry_criterion = geometry_criterion.to(accelerator.device)
+    tcp_criterion = tcp_criterion.to(accelerator.device)
+
+    steps_per_epoch = math.ceil(len(dataloader) / config["gradient_accumulation_steps"])
+    num_train_epochs = config.get("num_train_epochs")
+    total_steps = training_total_steps(
+        steps_per_epoch, num_train_epochs, config.get("max_train_steps")
+    )
+    scheduler_warmup_steps, scheduler_total_steps = distributed_scheduler_steps(
+        config["warmup_steps"],
+        total_steps,
+        num_processes=accelerator.num_processes,
+        split_batches=accelerator.split_batches,
+    )
+    raw_scheduler = cosine_warmup_scheduler(
+        optimizer,
+        scheduler_warmup_steps,
+        scheduler_total_steps,
+        config["eta_min_factor"],
+    )
+    scheduler = accelerator.prepare_scheduler(raw_scheduler)
+
+    initial_epoch = 0
+    initial_batch = 0
+    global_step = 0
+    if config.get("resume"):
+        resume_dir = Path(config["resume"]).expanduser()
+        accelerator.load_state(str(resume_dir))
+        with (resume_dir / "trainer_state.json").open(encoding="utf-8") as handle:
+            trainer_state = json.load(handle)
+        initial_epoch = int(trainer_state["epoch"])
+        initial_batch = int(trainer_state["batch_in_epoch"])
+        global_step = int(trainer_state["global_step"])
+        LOGGER.info("Resumed epoch=%d batch=%d step=%d", initial_epoch, initial_batch, global_step)
+        saved_scheduler_step = raw_scheduler.last_epoch
+        learning_rates = align_resumed_scheduler(
+            raw_scheduler,
+            global_step,
+            num_processes=accelerator.num_processes,
+            split_batches=accelerator.split_batches,
+        )
+        LOGGER.info(
+            "Resume LR aligned: global_step=%d scheduler_step=%d (saved=%d); "
+            "phase=%s; warmup remaining=%d optimizer steps",
+            global_step, raw_scheduler.last_epoch, saved_scheduler_step,
+            "cosine" if global_step >= config["warmup_steps"] else "initial warmup",
+            max(0, config["warmup_steps"] - global_step),
+        )
+        for group, lr in zip(optimizer.param_groups, learning_rates):
+            LOGGER.info("Resume lr/%s = %.10g", group.get("name", "group"), lr)
+
+    LOGGER.info(
+        "Training target: %d cumulative optimizer steps; %d remaining; epoch limit=%s",
+        total_steps, max(0, total_steps - global_step), num_train_epochs,
+    )
+
+    total_parameters = sum(parameter.numel() for parameter in model.parameters())
+    trainable_parameters = sum(
+        parameter.numel() for parameter in model.parameters() if parameter.requires_grad
+    )
+    LOGGER.info("Dataset: %d camera streams; trainable modules: %s", len(dataset), trainable)
+    for source in dataset.source_summaries:
+        LOGGER.info(
+            "Dataset source %s (type=%s): %d camera streams, sampling weight=%.4f",
+            source["name"],
+            source["type"],
+            source["episodes"],
+            source["weight"],
+        )
+    LOGGER.info(
+        "TCP trajectory filtering: %d invalid transitions across %d episodes",
+        dataset.invalid_transition_count,
+        dataset.segmented_episode_count,
+    )
+    LOGGER.info(
+        "Per-device dynamic batches: %s (%d images)",
+        batch_sampler.active_combinations,
+        batch_sampler.images_per_batch,
+    )
+    LOGGER.info("Trainable parameters: %s / %s", f"{trainable_parameters:,}", f"{total_parameters:,}")
+
+    source_batch_counts = {
+        source_name: 0 for source_name in dataset.source_names
+    }
+
+    stop_training = global_step >= total_steps
+    next_epoch_state = initial_epoch
+    next_batch_state = initial_batch
+    epochs = count(initial_epoch) if num_train_epochs is None else range(initial_epoch, num_train_epochs)
+    for epoch in epochs:
+        if stop_training:
+            break
+        dataset.set_epoch(epoch)
+        batch_sampler.set_epoch(epoch)
+        if hasattr(dataloader, "set_epoch"):
+            dataloader.set_epoch(epoch)
+        model.train()
+        batch_offset = initial_batch if epoch == initial_epoch else 0
+        epoch_dataloader = (
+            accelerator.skip_first_batches(dataloader, batch_offset)
+            if batch_offset
+            else dataloader
+        )
+        progress = tqdm(
+            total=len(dataloader),
+            initial=batch_offset,
+            disable=not accelerator.is_local_main_process,
+            desc=f"epoch {epoch + 1}",
+        )
+        for local_batch_index, batch in enumerate(epoch_dataloader):
+            batch_index = batch_offset + local_batch_index
+            source_name = batch["dataset_source"][0]
+            source_batch_counts[source_name] += 1
+            with accelerator.accumulate(model):
+                # Jitter changes only the initial visual query; full TCP poses
+                # remain supervision labels, never direct model inputs.
+                tcp_query_points = prepare_tcp_query_points(
+                    batch,
+                    global_step=global_step,
+                    total_steps=total_steps,
+                    config=config,
+                )
+                with accelerator.autocast():
+                    predictions = model(
+                        views_from_batch(batch),
+                        inference_track=False,
+                        decode_camera=True,
+                        decode_motion=False,
+                        tcp_query_points=tcp_query_points,
+                        decode_tcp=True,
+                        return_aux_pyramid=False,
+                        ref_view_strategy="first",
+                    )
+                batch = prepare_geometry_batch(
+                    batch,
+                    predictions,
+                    normalize=config.get("normalize_geometry", False),
+                )
+                geometry_losses = geometry_criterion(predictions, batch)
+                tcp_losses = tcp_criterion(predictions, batch)
+                total_objective = (
+                    geometry_losses["objective"]
+                    + config.get("tcp_loss_weight", 1.0) * tcp_losses["objective"]
+                )
+                losses = {f"geometry/{key}": value for key, value in geometry_losses.items()}
+                losses.update({f"tcp/{key}": value for key, value in tcp_losses.items()})
+                losses["objective"] = total_objective
+                if not torch.isfinite(total_objective):
+                    raise FloatingPointError("Non-finite training loss")
+                accelerator.backward(total_objective)
+                if accelerator.sync_gradients:
+                    grad_norm = accelerator.clip_grad_norm_(model.parameters(), config["max_grad_norm"])
+                optimizer.step()
+                scheduler.step()
+                optimizer.zero_grad(set_to_none=True)
+
+            progress.update(1)
+            next_epoch_state = epoch
+            next_batch_state = batch_index + 1
+            if next_batch_state >= len(dataloader):
+                next_epoch_state = epoch + 1
+                next_batch_state = 0
+            if accelerator.sync_gradients:
+                global_step += 1
+                metrics = {
+                    key: value.detach().float().item() for key, value in losses.items()
+                }
+                metrics.update(
+                    {
+                        f"data/source_batches/{name}": count
+                        for name, count in source_batch_counts.items()
+                    }
+                )
+                for group in optimizer.param_groups:
+                    metrics[f"lr/{group.get('name', 'group')}"] = group["lr"]
+                # Send identical metrics and update steps to every enabled tracker.
+                metrics["grad_norm"] = float(grad_norm)
+                record_metrics(config["output_dir"], global_step, metrics, accelerator)
+                accelerator.log(metrics, step=global_step)
+                if global_step % config["log_every_steps"] == 0:
+                    progress.set_postfix(objective=f"{metrics['objective']:.4f}")
+
+
+                if (
+                    config["checkpointing_steps"] > 0
+                    and global_step % config["checkpointing_steps"] == 0
+                ):
+                    save_checkpoint(
+                        accelerator,
+                        output_dir,
+                        f"checkpoint-{global_step}",
+                        epoch=next_epoch_state,
+                        batch_in_epoch=next_batch_state,
+                        global_step=global_step,
+                    )
+                if global_step >= total_steps:
+                    stop_training = True
+                    break
+        progress.close()
+        initial_batch = 0
+        if config.get("save_each_epoch") and not stop_training:
+            save_checkpoint(
+                accelerator,
+                output_dir,
+                f"epoch-{epoch + 1}",
+                epoch=epoch + 1,
+                batch_in_epoch=0,
+                global_step=global_step,
+            )
+        if stop_training:
+            break
+
+    save_checkpoint(
+        accelerator,
+        output_dir,
+        "final_checkpoint",
+        epoch=next_epoch_state,
+        batch_in_epoch=next_batch_state,
+        global_step=global_step,
+    )
+    accelerator.end_training()
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    finally:
+        # ``Accelerator.end_training`` handles the normal path. Also clean up
+        # after an exception so NCCL does not report a leaked process group.
+        if torch.distributed.is_available() and torch.distributed.is_initialized():
+            torch.distributed.destroy_process_group()

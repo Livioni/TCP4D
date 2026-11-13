@@ -1,0 +1,11 @@
+# Relative paths resolve from the TCP4D project root. Copy to config.local.yaml.
+data_roots:
+  - assets/pipeline
+  # Add a directory containing your MP4s or RGB frame directories here.
+work_dir: aug_pipeline/work
+checkpoint: checkpoints/TCP4D-stage1-DROID
+embodiments: aug_pipeline/third_party/embodiments
+sam3_checkpoint: aug_pipeline/weights/sam3.1_multiplex.pt
+propainter_repo: aug_pipeline/third_party/ProPainter
+gpu: 0
+mask_method: sam3

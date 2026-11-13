@@ -1,0 +1,4 @@
+# Install in the tcp4d environment after the repository's base dependencies.
+websockets>=15,<17
+msgpack>=1,<2
+numpy

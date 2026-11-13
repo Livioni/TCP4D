@@ -1,0 +1,31 @@
+{
+  "source_commit": "30d9afe30d24431bd113e19e6a49ca3cfc2ddf75",
+  "episodes": [
+    {
+      "dataset": "droid",
+      "path": "droid/AUTOLab__Fri_Jul_14_16:44:09_2023",
+      "frames_per_camera": 126,
+      "cameras": [
+        "22008760",
+        "24400334"
+      ],
+      "files": 522,
+      "bytes": 34376814,
+      "sha256_tree": "5ae637a062165350fab6509ab59866e1b4b794dcc3eb27d5dbaa18bfb1a9c6e4"
+    },
+    {
+      "dataset": "robotwin",
+      "path": "robotwin/adjust_bottle/episode_0000000",
+      "frames_per_camera": 150,
+      "cameras": [
+        "third_views",
+        "left_view",
+        "right_view",
+        "head_view"
+      ],
+      "files": 1217,
+      "bytes": 29150705,
+      "sha256_tree": "cd7066143d28526dce2a1079c2600e9b46919651d01d4573151c1328c540687f"
+    }
+  ]
+}

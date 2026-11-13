@@ -1,0 +1,24 @@
+{
+  "file_path": "gs://xembodiment_data/r2d2/r2d2-data-full/AUTOLab/success/2023-07-14/Fri_Jul_14_16:44:09_2023/trajectory.h5",
+  "language_instruction": [
+    "Put the orange object into the silver pot."
+  ],
+  "language_instruction_2": [
+    "Put the orange rubber duck in the pot"
+  ],
+  "language_instruction_3": [
+    "Put the rubber duckie inside the silver pot"
+  ],
+  "camera_json": "upstream:AUTOLab+84bd5053+2023-07-14-16h-44m-09s_cameras.json",
+  "extrinsics": {
+    "source_field": "optimized_extrinsics",
+    "transformation": "copied unchanged from source JSON",
+    "files_by_camera_serial": {
+      "22008760": "extrinsic/22008760.npy",
+      "24400334": "extrinsic/24400334.npy"
+    },
+    "image_camera_serial_mapping": null
+  },
+  "status": "success",
+  "frame_count": 126
+}

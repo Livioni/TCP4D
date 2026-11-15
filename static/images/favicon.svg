@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <title>TCP4D — gripper and tool center point</title>
+  <rect x="1" y="1" width="126" height="126" rx="28" fill="#f4f7fa" stroke="#dce5ed" stroke-width="2"/>
+  <!-- The open gripper echoes the silhouette at the start of the TCP4D wordmark. -->
+  <rect x="17" y="35" width="17" height="30" rx="5" fill="#283c4c"/>
+  <path d="M31 36 52 17a12 12 0 0 1 15-1l25 17a9 9 0 0 1 4 7v5H82v-5L60 26 45 41v18l15 15 22-14v-5h14v5a9 9 0 0 1-4 7L67 84a12 12 0 0 1-15-1L31 64Z" fill="#255b86"/>
+  <path d="m49 49 13-9m-13 9 13 10m-13-10h25" stroke="#86a9c4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="49" cy="49" r="5" fill="#e1ebf2"/>
+  <!-- Red locates the TCP between the fingers and carries the logo's accent. -->
+  <circle cx="88" cy="50" r="6" fill="#bf3c32"/>
+  <!-- Outlined letterforms stay consistent even at favicon sizes. -->
+  <g fill="#255b86">
+    <path d="M24 95h23v5h-9v17h-5v-17h-9Z"/>
+    <path d="M73 95v5H58v12h15v5H57a4 4 0 0 1-4-4V99a4 4 0 0 1 4-4Z"/>
+    <path fill-rule="evenodd" d="M80 95h16a8 8 0 0 1 0 16H85v6h-5Zm5 5v6h11a3 3 0 0 0 0-6Z"/>
+  </g>
+</svg>

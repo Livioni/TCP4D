@@ -1,0 +1,180 @@
+{
+  "format_version": "robotwin_4d_v1",
+  "task": "adjust_bottle",
+  "episode": "episode_0000000",
+  "embodiment": "aloha_agilex",
+  "source_file": "upstream:episode_0000000.hdf5",
+  "num_frames": 150,
+  "image_height": 240,
+  "image_width": 320,
+  "views": {
+    "left_view": "cam_left_wrist",
+    "right_view": "cam_right_wrist",
+    "head_view": "cam_head",
+    "third_views": "cam_third_view"
+  },
+  "rgb": {
+    "format": "PNG",
+    "dtype": "uint8",
+    "channel_order": "RGB"
+  },
+  "depth": {
+    "format": "PNG",
+    "dtype": "uint16",
+    "unit": "millimeter",
+    "invalid_value": 0
+  },
+  "intrinsics": {
+    "shape": [
+      3,
+      3
+    ],
+    "convention": "OpenCV pinhole pixel coordinates",
+    "per_view_constant": true
+  },
+  "extrinsics": {
+    "shape": [
+      150,
+      3,
+      4
+    ],
+    "transform": "world_to_camera",
+    "camera_coordinates": "OpenCV: +x right, +y down, +z forward"
+  },
+  "robot": {
+    "state_shape": [
+      150,
+      14
+    ],
+    "action_shape": [
+      150,
+      14
+    ],
+    "dtype": "float32",
+    "columns": [
+      {
+        "name": "left_arm_joint_states",
+        "start": 0,
+        "end": 6
+      },
+      {
+        "name": "left_ee_joint_states",
+        "start": 6,
+        "end": 7
+      },
+      {
+        "name": "right_arm_joint_states",
+        "start": 7,
+        "end": 13
+      },
+      {
+        "name": "right_ee_joint_states",
+        "start": 13,
+        "end": 14
+      }
+    ]
+  },
+  "frequency_hz": 15,
+  "instructions": [
+    "Lift the handheld green bottle from the table upright",
+    "Use the correct arm to pick up the medium green bottle with capped neck.",
+    "Take the plastic bottle from the table and keep upright",
+    "Use the left arm to pick up the bottle with white printed label from the table.",
+    "Grab the bottle with rounded neck and lift it with the left arm",
+    "Lift the medium green bottle up from the table",
+    "Secure the medium green bottle with capped neck upright with the left arm",
+    "Hold the medium-sized green bottle upright from the table",
+    "Grab the green bottle with indented base with the left arm in a head-up way",
+    "Pick up the bottle with white printed label upright from the table",
+    "Pick the smooth green bottle up with the left arm ensuring it stays head-up.",
+    "Position the medium green bottle with capped neck head-up and lift it",
+    "Pick up the smooth green bottle from the table carefully.",
+    "Pick the bottle with white printed label head-up and hold it steady.",
+    "Carefully grab the smooth green plastic bottle head-up",
+    "Use the left arm to hold the medium-sized green bottle from the table",
+    "Lift the bottle with white printed label using the left arm and hold upright",
+    "Grab the medium green bottle with capped neck and lift it into a head-up position",
+    "Identify the smooth green bottle and grab it with the left arm",
+    "Pick the bottle with rounded neck upright from the table",
+    "Lift the plastic bottle off the table and hold it upright.",
+    "Raise the smooth green plastic bottle from the table using the correct arm, the left arm.",
+    "Locate the bottle with white printed label and lift it upright with the left arm.",
+    "Lift the smooth green plastic bottle head-up from the table",
+    "Use the left arm to pick the bottle with rounded neck up and keep it head-up.",
+    "Grab the bottle with white printed label from the table and hold it head-up.",
+    "Lift the medium green bottle from the table and secure upright",
+    "Lift the medium green bottle with capped neck from the table.",
+    "Grab the medium green bottle with capped neck and lift it upward from the table.",
+    "Lift the medium-sized green bottle head-up from the table.",
+    "Find the plastic bottle on the table and raise it using the left arm.",
+    "Lift the medium-sized green bottle upright carefully using the left arm",
+    "Lift the smooth green bottle head-up from the table",
+    "Use the left arm to lift the bottle with rounded neck head-up",
+    "Raise the medium green bottle with capped neck in a head-up position",
+    "Use the left arm to pick up the bottle with ridges near base in the correct orientation",
+    "Pick the smooth green bottle upright from the table",
+    "Pick the medium green bottle head-up using the left arm",
+    "Using the left arm, pick the smooth green bottle upright",
+    "Hold the smooth green plastic bottle head-up after lifting it.",
+    "Pick up the handheld green bottle from the table using the left arm.",
+    "Use the left arm to grab and lift the bottle with narrow top head-up.",
+    "Grab the bottle with rounded neck head-up using the left arm from the table.",
+    "Pick the medium green bottle and keep it upright",
+    "Utilize the left arm to lift the medium green bottle while keeping it head-up.",
+    "Lift the smooth green bottle from the table with the left arm",
+    "Hold the smooth green plastic bottle upright after lifting with the left arm",
+    "Grab the medium green bottle with capped neck from the table with the left arm",
+    "Grab the medium-sized green bottle and lift it upright",
+    "Lift the medium-sized green bottle ensuring it remains upright.",
+    "Lift the smooth green bottle from the table upright",
+    "Use the correct arm to pick up the handheld green bottle.",
+    "Take the medium green bottle with capped neck from the table and keep upright",
+    "Use the left arm to pick up the handheld green bottle from the table.",
+    "Grab the bottle with ridges near base and lift it with the left arm",
+    "Lift the bottle with ridges near base up from the table",
+    "Secure the medium green bottle with capped neck upright with the left arm",
+    "Hold the bottle with rounded neck upright from the table",
+    "Grab the green bottle with indented base with the left arm in a head-up way",
+    "Pick up the green bottle with indented base upright from the table",
+    "Pick the bottle with white printed label up with the left arm ensuring it stays head-up.",
+    "Position the bottle with rounded neck head-up and lift it",
+    "Pick up the medium green bottle from the table carefully.",
+    "Pick the bottle with narrow top head-up and hold it steady.",
+    "Carefully grab the green bottle with indented base head-up",
+    "Use the left arm to hold the bottle with white printed label from the table",
+    "Lift the smooth green bottle using the left arm and hold upright",
+    "Grab the bottle with ridges near base and lift it into a head-up position",
+    "Identify the handheld green bottle and grab it with the left arm",
+    "Pick the bottle with rounded neck upright from the table",
+    "Lift the bottle with ridges near base off the table and hold it upright.",
+    "Raise the medium green bottle from the table using the correct arm, the left arm.",
+    "Locate the medium-sized green bottle and lift it upright with the left arm.",
+    "Lift the medium green bottle with capped neck head-up from the table",
+    "Use the left arm to pick the smooth green plastic bottle up and keep it head-up.",
+    "Grab the bottle with rounded neck from the table and hold it head-up.",
+    "Lift the plastic bottle from the table and secure upright",
+    "Lift the bottle with rounded neck from the table.",
+    "Grab the bottle with rounded neck and lift it upward from the table.",
+    "Lift the bottle with narrow top head-up from the table.",
+    "Find the plastic bottle on the table and raise it using the left arm.",
+    "Lift the handheld green bottle upright carefully using the left arm",
+    "Lift the bottle with ridges near base head-up from the table",
+    "Use the left arm to lift the smooth green bottle head-up",
+    "Raise the bottle with narrow top in a head-up position",
+    "Use the left arm to pick up the medium green bottle in the correct orientation",
+    "Pick the handheld green bottle upright from the table",
+    "Pick the smooth green plastic bottle head-up using the left arm",
+    "Using the left arm, pick the green bottle with indented base upright",
+    "Hold the medium green bottle head-up after lifting it.",
+    "Pick up the medium green bottle with capped neck from the table using the left arm.",
+    "Use the left arm to grab and lift the bottle with ridges near base head-up.",
+    "Grab the medium green bottle head-up using the left arm from the table.",
+    "Pick the handheld green bottle and keep it upright",
+    "Utilize the left arm to lift the bottle with ridges near base while keeping it head-up.",
+    "Lift the bottle with ridges near base from the table with the left arm",
+    "Hold the green bottle with indented base upright after lifting with the left arm",
+    "Grab the medium green bottle from the table with the left arm",
+    "Grab the medium-sized green bottle and lift it upright",
+    "Lift the smooth green bottle ensuring it remains upright."
+  ]
+}

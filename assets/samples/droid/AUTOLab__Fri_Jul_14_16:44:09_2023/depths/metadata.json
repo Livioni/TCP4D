@@ -1,0 +1,59 @@
+{
+  "source": "upstream:AUTOLab+84bd5053+2023-07-14-16h-44m-09s_depth.h5",
+  "units": "millimeters",
+  "dtype": "uint16",
+  "frame_alignment": "index",
+  "attributes": {},
+  "cameras": {
+    "22008760": {
+      "serial": "22008760",
+      "group": "22008760+ext",
+      "frames": 126,
+      "width": 320,
+      "height": 180,
+      "attributes": {
+        "camera_serial": "22008760",
+        "camera_type": "ext",
+        "is_wrist_camera": false
+      },
+      "depth_attributes": {
+        "dtype": "uint16",
+        "units": "millimeters",
+        "write_complete": true
+      },
+      "timestamps": "timestamps.npy",
+      "timestamp_attributes": {
+        "units": "milliseconds",
+        "write_complete": true
+      }
+    },
+    "24400334": {
+      "serial": "24400334",
+      "group": "24400334+ext",
+      "frames": 126,
+      "width": 320,
+      "height": 180,
+      "attributes": {
+        "camera_serial": "24400334",
+        "camera_type": "ext",
+        "is_wrist_camera": false
+      },
+      "depth_attributes": {
+        "dtype": "uint16",
+        "units": "millimeters",
+        "write_complete": true
+      },
+      "timestamps": "timestamps.npy",
+      "timestamp_attributes": {
+        "units": "milliseconds",
+        "write_complete": true
+      }
+    }
+  },
+  "source_metadata": {
+    "camera_count": 3,
+    "frame_count": 126,
+    "uuid": "AUTOLab+84bd5053+2023-07-14-16h-44m-09s",
+    "write_complete": true
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "format": "robotwin_tcp_v1",
+  "shape": [
+    150,
+    7
+  ],
+  "columns": [
+    "x",
+    "y",
+    "z",
+    "roll",
+    "pitch",
+    "yaw",
+    "gripper_open"
+  ],
+  "position_unit": "meter",
+  "rotation_unit": "radian",
+  "rpy_convention": "fixed-axis XYZ (R = Rz(yaw) @ Ry(pitch) @ Rx(roll))",
+  "coordinate_frame": "head_view OpenCV camera (+x right, +y down, +z forward)",
+  "camera": "head_view",
+  "extrinsics": "world_to_camera, read per frame from extrinsics/head_view.npy",
+  "gripper": {
+    "type": "binary",
+    "open": 1,
+    "closed": 0,
+    "source_threshold": 0.5
+  },
+  "tcp_definition": "midpoint of the two inner fingertip contact faces",
+  "source": "robot_state.npy"
+}

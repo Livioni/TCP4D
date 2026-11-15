@@ -1,0 +1,6 @@
+{
+  "tcp4d": {"repo": "HarrisonPENG/TCP4D-stage1-DROID", "revision": "021cff1437c5734b0c49b3935ed355862c89875c"},
+  "embodiments": {"repo": "HarrisonPENG/Embodiments", "revision": "bf347e5b0aeccf91a01ddc35dd0d0ecca9ec77bc"},
+  "sam3": {"repo": "facebook/sam3.1", "revision": "daa63191845a41281374e725f4c9e51c7a824460", "filename": "sam3.1_multiplex.pt"},
+  "propainter": {"repo": "https://github.com/sczhou/ProPainter.git", "revision": "326782529a63d997cab80ab21439b92ed422b3d3", "weights_url": "https://github.com/sczhou/ProPainter/releases/download/v0.1.0/"}
+}

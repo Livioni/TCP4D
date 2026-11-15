@@ -1,0 +1,77 @@
+franka-panda:
+  translation_m:
+  - 0
+  - 0
+  - 0.105779542
+  definition: Midpoint of area-weighted centroids of the two terminal inner contact
+    surfaces at limit-clamped closed gripper positions; fixed virtual closing point
+    when open.
+  method: 'Inward finger faces: normal -Y > 0.999, y within 0.0001 m of -0.0001 m,
+    z > 0.035 m; mirror right visual/collision origin.'
+  mesh_sha256:
+    franka_description/meshes/collision/finger.stl: 2d07a740392f3b9b0816f65d64fff9927d3d57c897870fc4b6ff9c56fff3a0c8
+  urdf_sha256: be80276223ca90363197d4316230173815b5ea45b1733ac514eb572ff1db786f
+ur5-wsg:
+  translation_m:
+  - 0.143500001
+  - -1.3823e-05
+  - 1.3823e-05
+  definition: Midpoint of area-weighted centroids of the two terminal inner contact
+    surfaces at limit-clamped closed gripper positions; fixed virtual closing point
+    when open.
+  method: Terminal contact pads at local x = 0.003 m, tolerance 2e-6 m, normal +X
+    cosine > 0.999; include WSG mount and guide joints.
+  mesh_sha256:
+    meshes/gripper/WSG-FMF.stl: b3fea07748d7b49d5d46c47ce96eeb3ef011437083ebd25452a42ace84675f3f
+  urdf_sha256: 3fb7a965dd5c2d04f9f6ffbda7a3c67d88fe1d7362bc6be1f57f3dbe4efe8cb4
+jaco:
+  translation_m:
+  - -0.00985774
+  - 0.00216327
+  - -0.00471542
+  definition: Centroid of the three fingertip link origins at the limit-clamped
+    closed finger position (three-finger hand); fixed virtual grasp point.
+  method: FK of jaco_link_finger_tip_1/2/3 with jaco_joint_finger_* = 0.6981317 rad,
+    expressed in the jaco_end_effector frame.
+  mesh_sha256:
+    meshes/jaco_link_finger.stl: 6bcd1d834491c56e33a2639f2f47ab178509cdbc20e0964c41a0c65e919536d4
+    meshes/jaco_link_finger_tip.stl: adb947400fa9df95d4ce0d2b780e5c8ee3220c8a42d6b9f1d6a9212857e54edb
+    meshes/jaco_link_finger.min.dae: 006c71c3b9af031de84f7fbe1ba20cd1ac0e7ff319bcb10b6426425302e0b59b
+    meshes/jaco_link_finger_tip.min.dae: 78439d4e29dab850e36b66df4505e65dcfa3a017fbdc584e876b43f2615c44b2
+  urdf_sha256: fad8a0a56f3a3a5e01a6523f3939dcbc063eb2d4b3bbf18c6262ea57b603cc1c
+
+sawyer:
+  translation_m:
+  - 0.003
+  - 0.0
+  - -0.0007
+  definition: Centroid of the two fingertip link origins at the limit-clamped closed finger position (parallel jaw); fixed virtual grasp point.
+  method: FK of right_gripper_l/r_finger_tip with right_gripper_*_finger_joint = 0.0 rad, expressed in the right_gripper_tip frame.
+  mesh_sha256:
+    meshes/standard_narrow.DAE: 9dd36ca75cd19bf67c8864c2c1a13c802be96c6f9f370f51764cf56c9f732d4b
+    meshes/basic_soft_tip.DAE: 4a38f77701e40ec8b31f9dbaba503644c0fa2b4d62843480a96d71d948178644
+  urdf_sha256: 045bd62bafb3b84fdb17d4d6399cc43ff42acff2afe7e3aaae674f09fb414f47
+kinova-gen3:
+  # EE <- virtual TCP: +X approaches along EE +Z, +Y spans the jaws
+  # along EE +X, and +Z completes the right-handed frame along EE +Y.
+  # Override the downloaded config's cyclic axis permutation in software.
+  rotation_matrix:
+  - [0, 1, 0]
+  - [0, 0, 1]
+  - [1, 0, 0]
+  translation_m:
+  - 0.0
+  - 0.0
+  - 0.00244185
+  definition: Centroid of the two fingertip link origins at the limit-clamped closed finger position (parallel jaw); fixed virtual grasp point.
+  method: FK of robotiq_85_left/right_finger_tip_link with the left knuckle at 0.8 rad (mimic signs per the URDF), expressed in the gen3_tcp frame.
+  mesh_sha256:
+    meshes/left_finger.dae: 5fb9e5659c735e48eb55269da431cf61b3b7a6745922c1932a7adefb1db86dc3
+    meshes/right_finger.dae: 3b2245b5537eb596d7f8a4c64b12e3aedea46e365fc589019184d3b4200e664f
+    meshes/left_finger_tip.dae: 785ec7a83b4fc6357c211a39bb117833b1cfd4e9bccbef2efc7f35aeb2fdb92e
+    meshes/right_finger_tip.dae: 568371d25ddbcee8e432c0610bdcc7afcd1393d48d973eed92168e353eb4edf5
+    meshes/left_finger.stl: f39a50be121122fc1c53c588a762ad1da8a0f64d39bc6f299cbe9b0597e7257b
+    meshes/right_finger.stl: 1d018fa2f0b50aca5941778d78810b211b1abfc8637c7953451d76d4833ba6f8
+    meshes/left_finger_tip.stl: 9d90031cd99106a8be63609f8ff78580638d91cc4167bf66c09198329f2e65cf
+    meshes/right_finger_tip.stl: 126f1559f2f7dca62449a6ca926c609fbdaa93ca66df805ff7c069bb206e3d10
+  urdf_sha256: 4ac97dad5ea48fa7b01339139757aa8fe022fa00daf590e4601a411ff63bba59

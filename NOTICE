@@ -1,0 +1,46 @@
+TCP4D minimal release
+
+The TCP4D codebase and released TCP4D model weights are licensed under the
+Creative Commons Attribution 4.0 International License (CC BY 4.0).
+License text: LICENSE
+License URL: https://creativecommons.org/licenses/by/4.0/
+Project and attribution: TCP4D contributors, https://github.com/Livioni/TCP4D
+Released models covered by this notice: TCP4D-stage1-DROID,
+TCP4D-stage1-RoboTwin and TCP4D-stage2-RoboTwin.
+This grant covers the rights held by the TCP4D contributors; third-party
+material remains subject to the licenses and notices described below.
+
+Adapted from Livioni/4RC at commit 30d9afe30d24431bd113e19e6a49ca3cfc2ddf75,
+including the working-tree DROID/RoboTwin training additions present at export.
+Upstream project: https://github.com/Luo-Yihang/4RC
+The source repository was read without modification during this extraction.
+
+Adapted 4RC components retain the S-Lab License 1.0 reproduced in
+licenses/4RC-S-Lab.txt; existing file-specific notices remain applicable.
+The S-Lab license permits non-commercial use and requires separate permission
+for commercial use.
+Meta/DINOv2 and ByteDance/Depth Anything-derived components retain their
+copyright and Apache notices in the source files. The Apache License 2.0 text
+is preserved in licenses/Apache-2.0.txt. Copied model definitions are
+retained where necessary to load existing checkpoint parameters, including
+frozen heads that the training/inference entrypoints do not execute.
+
+The source project's reconstruction lineage includes CroCo; the CroCo and DUSt3R
+runtime, visualization code and CUDA extension are not distributed by this
+minimal package.
+No upstream component, checkpoint or dataset is relicensed by the root CC BY 4.0
+license.
+
+DROID and RoboTwin sample exports retain their original source metadata with
+machine paths made portable. Upstream model checkpoints and source datasets
+remain subject to their upstream terms.
+
+The Python implementation uses the tcp4d package and TCP4D/TCP4DPolicy names.
+The offline checkpoint converter updates serialized parameter names on disk;
+the runtime accepts the current TCP4D checkpoint schema strictly.
+
+The DROID augmentation workbench adds optional SAM3, cuRobo, SAPIEN and
+ProPainter integrations. Those externally installed repositories, downloaded
+checkpoints and robot meshes retain their upstream terms. In particular,
+ProPainter's code and models retain NTU S-Lab License 1.0 terms. See
+aug_pipeline/README.md and aug_pipeline/resources.json for provenance.

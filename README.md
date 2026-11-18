@@ -4,8 +4,7 @@
 
   <h1>TCP4D: A Unified Tool-Center-Point Tracking and Generation Model for Robot Manipulation</h1>
 
-  <!-- TODO: Replace the remaining #resources href values with the Paper, Dataset, Model and Page URLs. -->
-  <a href="#resources" title="Paper: coming soon"><img src="https://img.shields.io/badge/Paper-Coming%20Soon-b31b1b?style=flat-square&amp;logo=arxiv&amp;logoColor=white" alt="Paper — Coming Soon"></a>
+  <a href="https://arxiv.org/abs/2611.23143" title="TCP4D paper on arXiv"><img src="https://img.shields.io/badge/arXiv-2611.23143-b31b1b?style=flat-square&amp;logo=arxiv&amp;logoColor=white" alt="arXiv 2611.23143"></a>
   <a href="https://huggingface.co/collections/HarrisonPENG/tcp4d-datasets-and-benchmark" title="Dataset"><img src="https://img.shields.io/badge/Dataset-Hugging%20Face-E5A50A?style=flat-square&amp;logo=huggingface&amp;logoColor=white" alt="Dataset"></a>
   <a href="https://huggingface.co/datasets/HarrisonPENG/TCP4D-Benchmark" title="TCP4D Benchmark on Hugging Face"><img src="https://img.shields.io/badge/Bench-Hugging%20Face-2563EB?style=flat-square&amp;logo=huggingface&amp;logoColor=white" alt="Bench — TCP4D Benchmark"></a>
   <a href="https://huggingface.co/collections/HarrisonPENG/tcp-4d-models" title="TCP4D Model on Hugging Face"><img src="https://img.shields.io/badge/Model-Hugging%20Face-D97706?style=flat-square&amp;logo=huggingface&amp;logoColor=white" alt="Model"></a>
@@ -181,18 +180,19 @@ and a Python client example.
 - [x] Stage1,2 Checkpoint, DROID training dataset, Benchmark.
 - [x] Training and inference scripts.
 - [x] Example Data augumentation pipeline.
-- [ ] Add paper, project page, author list and final citation metadata.
+- [x] Paper, project page, author list and citation.
 
 ## 📚 Citation
 
-Replace the placeholders with the published metadata before release:
-
 ```bibtex
-@misc{tcp4d,
-  title  = {TCP4D: A Unified Tool-Center-Point Tracking and Generation Model for Robot Manipulation},
-  author = {TODO: authors},
-  year   = {TODO: publication year},
-  url    = {TODO: paper URL}
+@misc{peng2026tcp4dunifiedtoolcenterpointtracking,
+  title         = {TCP4D: A Unified Tool-Center-Point Tracking and Generation Model for Robot Manipulation},
+  author        = {Haosong Peng and Xiangyang Liu and Zhengshen Zhang and Yunfeng Fan and Tianyu Qi and Xin Xia and Yufeng Zhan and Wenchao Xu},
+  year          = {2026},
+  eprint        = {2611.23143},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.RO},
+  url           = {https://arxiv.org/abs/2611.23143},
 }
 ```
 
